@@ -1,5 +1,8 @@
 #!/usr/bin/env perl
 
+our $CTAGS = 'ctags';
+our $CDEPS = 'c++ -MM';
+
 use strict;
 use List::Util qw/max/;
 
@@ -19,9 +22,7 @@ for (@sources, @cfiles) {
 
 my $program = $sources[0];
 $program =~ s/(.+)(?:\.cc|\.cpp|\.c)$/$1/;
-my %options = (
-	TAGS => 'ctags',
-);
+my %options = ();
 
 if (not open MAKEFILE, '>', 'Makefile') {
 	die "$0: error: Failed to write to Makefile: $!\n";
@@ -69,7 +70,7 @@ clean :
 	rm -f $program @objects tags
 
 tags : *.h @sources @cfiles
-	\$(TAGS) *.h @sources @cfiles
+	$CTAGS *.h @sources @cfiles
 
 $program : @objects
 };
@@ -81,6 +82,6 @@ if (scalar @sources) {
 }
 
 for (@sources, @cfiles) {
-	print `c++ -MM $_`;
+	print `$CDEPS $_`;
 }
 
