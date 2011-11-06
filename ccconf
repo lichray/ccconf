@@ -64,7 +64,7 @@ tags : *.h @sources
 	\$(TAGS) *.h @sources
 
 \$(PROGRAM) : @objects
-	\$(CXX) \$(LDFLAGS) -o $options{PROGRAM} @objects
+	\$(CXX) \$(LDFLAGS) -o \$(PROGRAM) @objects
 };
 
 for (@sources) {
