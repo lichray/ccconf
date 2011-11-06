@@ -24,6 +24,7 @@ for (@sources, @cfiles) {
 
 my $program = basename getcwd;
 my %options = ();
+my $linker = scalar @sources ? 'CXX' : 'CC';
 
 if (not open MAKEFILE, '>', 'Makefile') {
 	die "$0: error: Failed to write to Makefile: $!\n";
@@ -75,13 +76,8 @@ tags : *.h @sources @cfiles
 	$CTAGS *.h @sources @cfiles
 
 $program : @objects
+	\$($linker) \$(LDFLAGS) -o $program @objects
 };
-
-if (scalar @sources) {
-	print "\t\$(CXX) \$(LDFLAGS) -o $program @objects\n";
-} else {
-	print "\t\$(CC) \$(LDFLAGS) -o $program @objects\n";
-}
 
 for (@sources, @cfiles) {
 	print `$CDEPS $_`;
