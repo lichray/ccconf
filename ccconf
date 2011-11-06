@@ -2,6 +2,7 @@
 # This tool generates Makefile for C++ by default
 
 use strict;
+use List::Util qw/max/;
 
 $0 =~ s/.*\/(.+)$/$1/;
 
@@ -50,8 +51,9 @@ while ($_ = shift) {
 
 # Generates the Makefile
 
-while (my ($key, $value) = each %options){
-	print "$key := $value\n" ;
+my $lkey = max map { length $_ } keys %options;
+while (my ($key, $value) = each %options) {
+	printf "%-${lkey}s = %s\n", $key, $value;
 }
 
 print qq{
