@@ -20,11 +20,8 @@ my $program = $sources[0];
 $program =~ s/(.+)(?:\.cc|\.cpp)$/$1/;
 my %options = (
 	PROGRAM => $program,
-	TAGS => 'exctags',
-	CXX => 'g++',
-	CXXFLAGS => '-Wall',
-	CXXDEPS => 'g++ -MM',
-	LDFLAGS => '',
+	TAGS => 'ctags',
+	CXXDEPS => 'c++ -MM',
 );
 
 if (not open MAKEFILE, '>', 'Makefile') {
