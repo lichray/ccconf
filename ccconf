@@ -5,6 +5,8 @@ our $CDEPS = 'c++ -MM';
 
 use strict;
 use List::Util qw/max/;
+use Cwd;
+use File::Basename;
 
 $0 =~ s/.*\/(.+)$/$1/;
 
@@ -20,8 +22,7 @@ for (@sources, @cfiles) {
 	push @objects, $1 . '.o';
 }
 
-my $program = $sources[0];
-$program =~ s/(.+)(?:\.cc|\.cpp|\.c)$/$1/;
+my $program = basename getcwd;
 my %options = ();
 
 if (not open MAKEFILE, '>', 'Makefile') {
