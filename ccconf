@@ -39,6 +39,12 @@ while ($_ = shift) {
 		$options{$1} .= ' ' . $2;
 	} elsif (/(.+?)=(.*)/) {
 		$options{$1} = $2;
+	} elsif (/^\+(.*)/) {
+		$options{CFLAGS} .= `pkg-config --cflags $1`;
+		exit 1 if $?;
+		chomp $options{CFLAGS};
+		$options{LDFLAGS} .= `pkg-config --libs $1`;
+		chomp $options{LDFLAGS};
 	} else {
 		if (not $pgm_def) {
 			$options{PROGRAM} = $_;
