@@ -44,9 +44,9 @@ my $pgm_def = 0;
 print STDERR "==>  Configuring for $program\n";
 while ($_ = shift) {
 	if (/(.+?)\+=(.*)/) {
-		$options{$1} .= ' ' . $2;
+		$options{$1} .= $2 . '  ';
 	} elsif (/(.+?)=(.*)/) {
-		$options{$1} = $2;
+		$options{$1} = $2 . '  ';
 	} elsif (/^\+(.*)/) {
 		print STDERR "==>   $program depends on package: $1 - ";
 		$options{CFLAGS} .= `pkg-config --cflags $1 2>/dev/null`;
@@ -57,7 +57,7 @@ while ($_ = shift) {
 		chomp $options{LDFLAGS};
 	} elsif (/^\-(.*)/) {
 		print STDERR "==>   $program depends on library: lib$1.so - ";
-		$options{LDFLAGS} .= "-l$1";
+		$options{LDFLAGS} .= "-l$1  ";
 		die "not found\n" unless $all_libs =~ /\/lib$1\.so\./;
 		print STDERR "found\n";
 	} else {
