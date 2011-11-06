@@ -43,6 +43,8 @@ while ($_ = shift) {
 		chomp $options{CFLAGS};
 		$options{LDFLAGS} .= `pkg-config --libs $1`;
 		chomp $options{LDFLAGS};
+	} elsif (/^\-(.*)/) {
+		$options{LDFLAGS} .= "-l$1";
 	} else {
 		if (not $pgm_def) {
 			$program = $_;
