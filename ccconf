@@ -1,5 +1,4 @@
 #!/usr/bin/env perl
-# This tool generates Makefile for C++ by default
 
 use strict;
 use List::Util qw/max/;
@@ -7,18 +6,19 @@ use List::Util qw/max/;
 $0 =~ s/.*\/(.+)$/$1/;
 
 my @sources = <*.cc *.cpp>;
-if (!scalar @sources) {
-	die "$0: error: No C++ source file found\n";
+my @cfiles = <*.c>;
+if (!scalar @sources and !scalar @cfiles) {
+	die "$0: error: No C/C++ source file found\n";
 }
 
 my @objects = ();
-for (@sources) {
-	/(.+)(?:\.cc|\.cpp)$/;
+for (@sources, @cfiles) {
+	/(.+)(?:\.cc|\.cpp|\.c)$/;
 	push @objects, $1 . '.o';
 }
 
 my $program = $sources[0];
-$program =~ s/(.+)(?:\.cc|\.cpp)$/$1/;
+$program =~ s/(.+)(?:\.cc|\.cpp|\.c)$/$1/;
 my %options = (
 	TAGS => 'ctags',
 );
@@ -68,14 +68,19 @@ all : $program
 clean :
 	rm -f $program @objects tags
 
-tags : *.h @sources
-	\$(TAGS) *.h @sources
+tags : *.h @sources @cfiles
+	\$(TAGS) *.h @sources @cfiles
 
 $program : @objects
-	\$(CXX) \$(LDFLAGS) -o $program @objects
 };
 
-for (@sources) {
+if (scalar @sources) {
+	print "\t\$(CXX) \$(LDFLAGS) -o $program @objects\n";
+} else {
+	print "\t\$(CC) \$(LDFLAGS) -o $program @objects\n";
+}
+
+for (@sources, @cfiles) {
 	print `c++ -MM $_`;
 }
 
