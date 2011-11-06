@@ -36,14 +36,18 @@ print "# $0 @ARGV\n";
 print "\n" if scalar %options;
 
 my $pgm_def = 0;
+
+print STDERR "==>  Configuring for $program\n";
 while ($_ = shift) {
 	if (/(.+?)\+=(.*)/) {
 		$options{$1} .= ' ' . $2;
 	} elsif (/(.+?)=(.*)/) {
 		$options{$1} = $2;
 	} elsif (/^\+(.*)/) {
-		$options{CFLAGS} .= `pkg-config --cflags $1`;
-		exit 1 if $?;
+		print STDERR "==>   $program depends on package: $1 - ";
+		$options{CFLAGS} .= `pkg-config --cflags $1 2>/dev/null`;
+		die "not found\n" if $?;
+		print STDERR "found\n";
 		chomp $options{CFLAGS};
 		$options{LDFLAGS} .= `pkg-config --libs $1`;
 		chomp $options{LDFLAGS};
@@ -51,6 +55,8 @@ while ($_ = shift) {
 		$options{LDFLAGS} .= "-l$1";
 	} else {
 		if (not $pgm_def) {
+			print STDERR "==>  Renaming $program to $_\n"
+				if $program ne $_;
 			$program = $_;
 			$pgm_def = 1;
 		} else {
@@ -60,6 +66,9 @@ while ($_ = shift) {
 }
 
 # Generates the Makefile
+
+
+print STDERR "==>  Writing Makefile ..";
 
 my $lkey = max map { length $_ } keys %options;
 while (my ($key, $value) = each %options) {
@@ -83,3 +92,4 @@ for (@sources, @cfiles) {
 	print `$CDEPS $_`;
 }
 
+print STDERR ". done\n";
