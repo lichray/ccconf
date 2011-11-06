@@ -20,7 +20,6 @@ for (@sources) {
 my $program = $sources[0];
 $program =~ s/(.+)(?:\.cc|\.cpp)$/$1/;
 my %options = (
-	PROGRAM => $program,
 	TAGS => 'ctags',
 	CXXDEPS => 'c++ -MM',
 );
@@ -47,7 +46,7 @@ while ($_ = shift) {
 		chomp $options{LDFLAGS};
 	} else {
 		if (not $pgm_def) {
-			$options{PROGRAM} = $_;
+			$program = $_;
 			$pgm_def = 1;
 		} else {
 			warn "$0: warning: unused argument -- $_\n";
@@ -64,15 +63,15 @@ while (my ($key, $value) = each %options) {
 
 print qq{
 .PHONY : all clean
-all : \$(PROGRAM)
+all : $program
 clean :
-	rm -f \$(PROGRAM) @objects tags
+	rm -f $program @objects tags
 
 tags : *.h @sources
 	\$(TAGS) *.h @sources
 
-\$(PROGRAM) : @objects
-	\$(CXX) \$(LDFLAGS) -o \$(PROGRAM) @objects
+$program : @objects
+	\$(CXX) \$(LDFLAGS) -o $program @objects
 };
 
 for (@sources) {
