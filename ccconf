@@ -30,7 +30,8 @@ if (not open MAKEFILE, '>', 'Makefile') {
 
 select MAKEFILE;
 
-print "# $0 @ARGV\n\n";
+print "# $0 @ARGV\n";
+print "\n" if scalar %options;
 
 my $pgm_def = 0;
 while ($_ = shift) {
