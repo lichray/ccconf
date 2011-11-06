@@ -21,7 +21,6 @@ my $program = $sources[0];
 $program =~ s/(.+)(?:\.cc|\.cpp)$/$1/;
 my %options = (
 	TAGS => 'ctags',
-	CXXDEPS => 'c++ -MM',
 );
 
 if (not open MAKEFILE, '>', 'Makefile') {
@@ -75,6 +74,6 @@ $program : @objects
 };
 
 for (@sources) {
-	print `$options{CXXDEPS} $_`;
+	print `c++ -MM $_`;
 }
 
