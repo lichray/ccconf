@@ -8,7 +8,7 @@ use List::Util qw/max/;
 use Cwd;
 use File::Basename;
 
-$0 =~ s/.*\/(.+)$/$1/;
+$0 = basename $0;
 
 my @sources = <*.cc *.cpp>;
 my @cfiles = <*.c>;
