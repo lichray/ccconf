@@ -1,0 +1,76 @@
+#!/usr/bin/env perl
+# This tool generates Makefile for C++ by default
+
+use strict;
+
+$0 =~ s/.*\/(.+)$/$1/;
+
+my @sources = <*.cc *.cpp>;
+if (!scalar @sources) {
+	die "$0: error: No C++ source file found\n";
+}
+
+my @objects = ();
+for (@sources) {
+	/(.+)(?:\.cc|\.cpp)$/;
+	push @objects, $1 . '.o';
+}
+
+my $program = $sources[0];
+$program =~ s/(.+)(?:\.cc|\.cpp)$/$1/;
+my %options = (
+	PROGRAM => $program,
+	TAGS => 'exctags',
+	CXX => 'g++',
+	CXXFLAGS => '-Wall',
+	CXXDEPS => 'g++ -MM',
+	LDFLAGS => '',
+);
+
+if (not open MAKEFILE, '>', 'Makefile') {
+	die "$0: error: Failed to write to Makefile: $!\n";
+}
+
+select MAKEFILE;
+
+print "# $0 @ARGV\n\n";
+
+my $pgm_def = 0;
+while ($_ = shift) {
+	if (/(.+?)\+=(.*)/) {
+		$options{$1} .= ' ' . $2;
+	} elsif (/(.+?)=(.*)/) {
+		$options{$1} = $2;
+	} else {
+		if (not $pgm_def) {
+			$options{PROGRAM} = $_;
+			$pgm_def = 1;
+		} else {
+			warn "$0: warning: unused argument -- $_\n";
+		}
+	}
+}
+
+# Generates the Makefile
+
+while (my ($key, $value) = each %options){
+	print "$key := $value\n" ;
+}
+
+print qq{
+.PHONY : all clean
+all : \$(PROGRAM)
+clean :
+	rm -f \$(PROGRAM) @objects tags
+
+tags : *.h @sources
+	\$(TAGS) *.h @sources
+
+\$(PROGRAM) : @objects
+	\$(CXX) \$(LDFLAGS) -o $options{PROGRAM} @objects
+};
+
+for (@sources) {
+	print `$options{CXXDEPS} $_`;
+}
+
