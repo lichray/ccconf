@@ -35,6 +35,10 @@ select MAKEFILE;
 print "# $0 @ARGV\n";
 print "\n" if scalar %options;
 
+my $all_libs = `/sbin/ldconfig -p 2>/dev/null`;
+$all_libs = `/sbin/ldconfig -r 2>/dev/null` if $?;
+die "$0: error: ldconfig not found\n" if $?;
+
 my $pgm_def = 0;
 
 print STDERR "==>  Configuring for $program\n";
@@ -52,7 +56,10 @@ while ($_ = shift) {
 		$options{LDFLAGS} .= `pkg-config --libs $1`;
 		chomp $options{LDFLAGS};
 	} elsif (/^\-(.*)/) {
+		print STDERR "==>   $program depends on library: lib$1.so - ";
 		$options{LDFLAGS} .= "-l$1";
+		die "not found\n" unless $all_libs =~ /\/lib$1\.so\./;
+		print STDERR "found\n";
 	} else {
 		if (not $pgm_def) {
 			print STDERR "==>  Renaming $program to $_\n"
