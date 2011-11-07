@@ -12,8 +12,8 @@ $0 = basename $0;
 
 if (!$#ARGV and $ARGV[0] eq '--help') {
 	print <<END;
-usage: $0 [progname] [-<libs>]...   [+<packages>]...
-       $0 a.out       -m => libm.so  +x11 => pkg-config x11
+usage: $0 [bin] [-library]...  [+package]...  [var=value]...
+       $0 a.out  -m => libm.so  +x11 => pkg-config x11
 END
 	exit;
 }
