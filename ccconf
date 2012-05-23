@@ -100,7 +100,7 @@ tags : *.h @sources @cfiles
 	$CTAGS *.h @sources @cfiles
 
 $program : @objects
-	\$($linker) \$(LDFLAGS) -o $program @objects
+	\$\{$linker\} \$\{LDFLAGS\} -o $program @objects
 };
 
 for (@sources, @cfiles) {
