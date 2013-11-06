@@ -1,7 +1,7 @@
 #!/usr/bin/env perl
 
 our $CTAGS = 'ctags';
-our $CDEPS = 'c++ -MM';
+our $DEPOPT = '-MM';
 
 use strict;
 use List::Util qw/max/;
@@ -103,8 +103,15 @@ $program : @objects
 	\$\{$linker\} \$\{LDFLAGS\} -o $program @objects
 };
 
-for (@sources, @cfiles) {
-	print `$CDEPS $_`;
+my $cxx = $options{CXX} or 'c++';
+my $cc = $options{CC} or 'cc';
+
+for (@sources) {
+	print `$cxx $options{CXXFLAGS} $DEPOPT $_`;
+}
+
+for (@cfiles) {
+	print `$cc $options{CFLAGS} $DEPOPT $_`;
 }
 
 print STDERR ". done\n";
