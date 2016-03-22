@@ -18,21 +18,22 @@ END
 	exit;
 }
 
-my @sources = <*.cc *.cpp>;
+my @cxxfiles = <*.cc *.cpp>;
 my @cfiles = <*.c>;
-if (!scalar @sources and !scalar @cfiles) {
+my @sources = (@cxxfiles, @cfiles);
+if (!scalar @sources) {
 	die "$0: error: No C/C++ source file found\n";
 }
 
 my @objects = ();
-for (@sources, @cfiles) {
+for (@sources) {
 	/(.+)(?:\.cc|\.cpp|\.c)$/;
 	push @objects, $1 . '.o';
 }
 
 my $program = basename getcwd;
 my %options = ();
-my $linker = scalar @sources ? 'CXX' : 'CC';
+my $linker = scalar @cxxfiles ? 'CXX' : 'CC';
 
 if (not open MAKEFILE, '>', 'Makefile') {
 	die "$0: error: Failed to write to Makefile: $!\n";
@@ -45,7 +46,7 @@ print "\n" if scalar %options;
 
 my $all_libs = `/sbin/ldconfig -p 2>/dev/null`;
 $all_libs = `/sbin/ldconfig -r 2>/dev/null` if $?;
-die "$0: error: ldconfig not found\n" if $?;
+warn "$0: error: ldconfig not found\n" if $?;
 
 my $pgm_def = 0;
 
@@ -87,6 +88,7 @@ print STDERR "==>  Writing Makefile ..";
 
 my $lkey = max map { length $_ } keys %options;
 while (my ($key, $value) = each %options) {
+	$value =~ s/\s+$//;
 	printf "%-${lkey}s = %s\n", $key, $value;
 }
 
@@ -96,8 +98,8 @@ all : $program
 clean :
 	rm -f $program @objects tags
 
-tags : *.h @sources @cfiles
-	$CTAGS *.h @sources @cfiles
+tags : *.h @sources
+	$CTAGS *.h @sources
 
 $program : @objects
 	\$\{$linker\} \$\{LDFLAGS\} -o $program @objects
@@ -106,7 +108,7 @@ $program : @objects
 my $cxx = $options{CXX} or 'c++';
 my $cc = $options{CC} or 'cc';
 
-for (@sources) {
+for (@cxxfiles) {
 	print `$cxx $options{CXXFLAGS} $DEPOPT $_`;
 }
 
